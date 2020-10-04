@@ -1,6 +1,6 @@
-const CHACE_NAME = "firstpwa";
+const CACHE_NAME = "firstpwa";
 
-var urlsToChace = [
+var urlsTocache = [
   "/",
   "/nav.html",
   "/index.html",
@@ -13,9 +13,27 @@ var urlsToChace = [
 ];
 
 self.addEventListener("install", function (event) {
-  event.waitUntill(
-    chaces.open(CHACE_NAME).then(function (chace) {
-      return chace.addAll(urlsToChace);
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(function (cache) {
+      return cache.addAll(urlsTocache);
     }),
+  );
+});
+
+self.addEventListener("fetch", function (event) {
+  event.respondWith(
+    caches
+      .match(event.request, { cacheName: CACHE_NAME })
+      .then(function (response) {
+        if (response) {
+          console.log("Service Worker: Gunakan aset dari ", response.url);
+          return response;
+        }
+        console.log(
+          "Service Worker: Memuat Aset dari server",
+          event.request.url,
+        );
+        return fetch(event.request);
+      }),
   );
 });
